@@ -1,0 +1,42 @@
+# - Python Cache
+__pycache__/
+*.pyc
+*.pyo
+
+# ─ Other Cache
+.pytest_cache/
+.pytest_cache
+.ruff_cache
+
+# ─ Build Artifacts
+build/
+dist/
+wheels/
+*.egg-info
+
+# ─ Virtual environments
+.venv
+venv/
+.env/
+
+# ─ IDE/Editor
+# .vscode/
+.idea/
+*.swp
+
+# ─ Coverage Data
+.coverage
+htmlcov
+
+# ─ Logs
+*.log
+!data/**/*.log
+
+# ─ Local Config
+.python-version
+
+# ─ OS-Specific Files
+.DS_Store
+Thumbs.db
+
+
