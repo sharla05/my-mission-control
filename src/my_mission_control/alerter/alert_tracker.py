@@ -5,7 +5,6 @@ from typing import Deque, Dict, Optional
 from structlog.stdlib import get_logger
 
 from my_mission_control.alerter.alert_generator import Alert
-from my_mission_control.alerter.alert_rules import evaluate_alert_condition
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy
 from my_mission_control.alerter.log_line_parser import LogEntry
 
@@ -26,14 +25,12 @@ class AlertTracker:
 
 
     def process_log_entry(self, log_entry: LogEntry) -> Optional[Alert]:
-        # severity:Optional[str] = evaluate_alert_condition(log_entry)
         def eval_alert_condition(log_entry: LogEntry):
             eval_strategy = self.alert_eval_strategy_map[log_entry.cmpnt]
             if not eval_strategy:
                 logger.warning(f"No alert evaluation strategy found for {log_entry.cmpnt}")
                 return None
             return eval_strategy.evaluate(log_entry)
-        
         severity:Optional[str] = eval_alert_condition(log_entry)
 
         if not severity:

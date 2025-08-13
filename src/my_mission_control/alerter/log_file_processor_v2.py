@@ -3,7 +3,7 @@ from typing import Dict, List
 from structlog.stdlib import get_logger
 
 from my_mission_control.alerter.alert_generator import Alert
-from my_mission_control.alerter.alert_strategy import AlertEvalStrategy, RedLowAlertStrategy, RedHighAlertStrategy
+from my_mission_control.alerter.alert_strategy import AlertEvalStrategy, RedHighAlertStrategy, RedLowAlertStrategy
 from my_mission_control.alerter.alert_tracker import AlertTracker
 from my_mission_control.alerter.log_line_parser import LogEntry, parse_log_line
 

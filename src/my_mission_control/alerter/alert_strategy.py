@@ -3,7 +3,6 @@ from typing import Optional
 
 from my_mission_control.alerter.log_line_parser import LogEntry
 
-
 SEVERITY_RED_HIGH = "RED HIGH"
 SEVERITY_RED_LOW = "RED LOW"
 
