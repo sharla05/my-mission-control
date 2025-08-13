@@ -1,3 +1,9 @@
+"""
+Alert evaluation strategies for log entries.
+
+Implements the Strategy Pattern to support flexible and extensible alert evaluation logic.
+"""
+
 from abc import ABC
 from typing import Optional
 
@@ -8,14 +14,23 @@ SEVERITY_RED_LOW = "RED LOW"
 
 
 class AlertEvalStrategy(ABC):
+    """
+    Abstract base for alert evaluation strategy.
+        Extend this class to implement custom alert evaluation for the log entry
+    """
+
     def evaluate(self, log_entry: LogEntry) -> Optional[str]:
         pass
 
 
 class RedLowAlertStrategy(AlertEvalStrategy):
+    """
+    Evaluates whether a log entry value is below red-low-limit
+    """
+
     def evaluate(self, log_entry: LogEntry) -> Optional[str]:
         """
-        Only consider readings that are under the red-low-limit
+        Returns 'RED LOW' if condition is met
         """
         if log_entry.val < log_entry.rll:
             return SEVERITY_RED_LOW
@@ -23,9 +38,13 @@ class RedLowAlertStrategy(AlertEvalStrategy):
 
 
 class RedHighAlertStrategy(AlertEvalStrategy):
+    """
+    Evaluates whether a log entry value is abor red-high-limit
+    """
+
     def evaluate(self, log_entry: LogEntry) -> Optional[str]:
         """
-        Only readings that exceed the red-high-limit
+        Returns 'RED HIGH' if condition is met
         """
         if log_entry.val > log_entry.rhl:
             return SEVERITY_RED_HIGH
