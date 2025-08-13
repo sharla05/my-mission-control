@@ -6,6 +6,7 @@ from structlog.stdlib import get_logger
 
 from my_mission_control.alerter.alert_generator import Alert
 from my_mission_control.alerter.alert_rules import evaluate_alert_condition
+from my_mission_control.alerter.alert_strategy import AlertEvalStrategy
 from my_mission_control.alerter.log_line_parser import LogEntry
 
 logger = get_logger(__name__)
@@ -16,7 +17,8 @@ TIME_DELTA = timedelta(minutes=TIME_WINDOW_MINUTES)
 
 
 class AlertTracker:
-    def __init__(self):
+    def __init__(self, alert_eval_strategy_map: Dict[str, AlertEvalStrategy]):
+        self.alert_eval_strategy_map = alert_eval_strategy_map
         # For each satellite maintain queue for each of its component to store timestamp of alert condition
         self.alert_timestamps: Dict[int, Dict[str, Deque[datetime]]] = defaultdict(lambda: defaultdict(deque))
         # For each satellite maintain dictionary for each of its component to store timestamp of last alert condition
@@ -24,7 +26,15 @@ class AlertTracker:
 
 
     def process_log_entry(self, log_entry: LogEntry) -> Optional[Alert]:
-        severity:Optional[str] = evaluate_alert_condition(log_entry)
+        # severity:Optional[str] = evaluate_alert_condition(log_entry)
+        def eval_alert_condition(log_entry: LogEntry):
+            eval_strategy = self.alert_eval_strategy_map[log_entry.cmpnt]
+            if not eval_strategy:
+                logger.warning(f"No alert evaluation strategy found for {log_entry.cmpnt}")
+                return None
+            return eval_strategy.evaluate(log_entry)
+        
+        severity:Optional[str] = eval_alert_condition(log_entry)
 
         if not severity:
             return None
