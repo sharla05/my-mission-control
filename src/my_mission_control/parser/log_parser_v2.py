@@ -43,17 +43,13 @@ def parse_log_line(line) -> Optional[LogEntry]:
     """
     parts = line.strip().split(DELIMITER)
     if len(parts) != EXPECTED_FIELD_COUNT:
-        logger.warning(
-            f"Invalid line, expected {EXPECTED_FIELD_COUNT} fields, got {len(parts)}"
-        )
+        logger.warning(f"Invalid line, expected {EXPECTED_FIELD_COUNT} fields, got {len(parts)}")
         return None
 
     try:
         ts_str, sat_id, rhl, yhl, yll, rll, val, cmpnt = parts
         ts = datetime.strptime(ts_str, TIME_FORMAT_INPUT)
-        return LogEntry(
-            ts, int(sat_id), int(rhl), int(yhl), int(yll), int(rll), float(val), cmpnt
-        )
+        return LogEntry(ts, int(sat_id), int(rhl), int(yhl), int(yll), int(rll), float(val), cmpnt)
     except Exception as e:
         logger.error(f"Failed to parse line: '{line}' - {e}", exc_info=True)
         return None
@@ -78,12 +74,8 @@ def process_log_file(log_file: str) -> List[dict]:
     Process log file line-by-line and generate alert when number of violation within time window exceed the threshold.
     """
     # For each satellite maintain queue for each of its component to store timestamp of alert condition
-    violation_tss_by_sat_cmpnt: Dict[int, Dict[str, Deque[datetime]]] = defaultdict(
-        lambda: defaultdict(deque)
-    )
-    last_alert_ts_by_sat_cmpnt: Dict[int, Dict[str, Optional[datetime]]] = defaultdict(
-        lambda: defaultdict(lambda: None)
-    )
+    violation_tss_by_sat_cmpnt: Dict[int, Dict[str, Deque[datetime]]] = defaultdict(lambda: defaultdict(deque))
+    last_alert_ts_by_sat_cmpnt: Dict[int, Dict[str, Optional[datetime]]] = defaultdict(lambda: defaultdict(lambda: None))
     alerts: List[dict] = []
     print("")
 
@@ -98,16 +90,11 @@ def process_log_file(log_file: str) -> List[dict]:
                 continue
 
             # Add timestamp to the appropriate statellite-component pair deque
-            sat_cmpnt_violations_dq = violation_tss_by_sat_cmpnt[log_entry.sat_id][
-                log_entry.cmpnt
-            ]
+            sat_cmpnt_violations_dq = violation_tss_by_sat_cmpnt[log_entry.sat_id][log_entry.cmpnt]
             sat_cmpnt_violations_dq.append(log_entry.ts)
 
             # Remove entries older than the violation check time delta window
-            while (
-                sat_cmpnt_violations_dq
-                and (log_entry.ts - sat_cmpnt_violations_dq[0]) > TIME_DELTA
-            ):
+            while sat_cmpnt_violations_dq and (log_entry.ts - sat_cmpnt_violations_dq[0]) > TIME_DELTA:
                 sat_cmpnt_violations_dq.popleft()
 
             # print(f"sat_cmpnt_violations_dq: [{sat_id}][{cmpnt}]", sat_cmpnt_violations_dq)
@@ -115,16 +102,10 @@ def process_log_file(log_file: str) -> List[dict]:
             # Check number of entries exceed the violation threshold
             if len(sat_cmpnt_violations_dq) >= VIOLATION_THRESHOLD:
                 first_ts = sat_cmpnt_violations_dq[0]
-                last_alert_ts = last_alert_ts_by_sat_cmpnt[log_entry.sat_id][
-                    log_entry.cmpnt
-                ]
+                last_alert_ts = last_alert_ts_by_sat_cmpnt[log_entry.sat_id][log_entry.cmpnt]
 
                 if last_alert_ts is None or first_ts > last_alert_ts:
-                    severity = (
-                        SEVERITY_RED_HIGH
-                        if log_entry.cmpnt == COMPONENT_TSTAT
-                        else SEVERITY_RED_LOW
-                    )
+                    severity = SEVERITY_RED_HIGH if log_entry.cmpnt == COMPONENT_TSTAT else SEVERITY_RED_LOW
                     alert = {
                         "satelliteId": log_entry.sat_id,
                         "severity": severity,
@@ -134,9 +115,7 @@ def process_log_file(log_file: str) -> List[dict]:
                     alerts.append(alert)
 
                     # last_alert_time[log_entry.sat_id][log_entry.cmpnt] = first_ts # should be 'ts', that is, last timestamp of violation entry
-                    last_alert_ts_by_sat_cmpnt[log_entry.sat_id][log_entry.cmpnt] = (
-                        log_entry.ts
-                    )  # should be 'ts', that is, last timestamp of violation entry
+                    last_alert_ts_by_sat_cmpnt[log_entry.sat_id][log_entry.cmpnt] = log_entry.ts  # should be 'ts', that is, last timestamp of violation entry
 
-    logger.info(json.dumps(alerts))
+    # logger.info(json.dumps(alerts))
     return alerts
