@@ -6,8 +6,8 @@ import contextlib
 import structlog
 from my_mission_control.utils.log_util import setup_logging, LOG_CONFIGURED
 
-class TestStructlogSetup(unittest.TestCase):
 
+class TestStructlogSetup(unittest.TestCase):
     def setUp(self):
         # Reset configuration flag before each test
         if hasattr(structlog, LOG_CONFIGURED):
@@ -49,6 +49,7 @@ class TestStructlogSetup(unittest.TestCase):
 
         output = log_output.getvalue()
         self.assertIn("Fallback test", output)  # Should default to ConsoleRenderer
+
 
 if __name__ == "__main__":
     unittest.main()

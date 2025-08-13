@@ -9,6 +9,7 @@ LOG_CONFIGURED = "_log_configured"
 DEV_ENVIRONMENT = "development"
 PROD_ENVIRONMENT = "production"
 
+
 def _get_log_render():
     """
     Determine log render based on enviorenment
@@ -20,20 +21,25 @@ def _get_log_render():
     return structlog.dev.ConsoleRenderer()
 
 
-def setup_logging(default_log_level = logging.INFO, log_level_env_var = "LOG_LEVEL", **global_context):
+def setup_logging(
+    default_log_level=logging.INFO, log_level_env_var="LOG_LEVEL", **global_context
+):
     """
-    Setup structlog configuration and integration with standard logging library, 
+    Setup structlog configuration and integration with standard logging library,
     creat global context variable for use across the application
     """
 
     if getattr(structlog, LOG_CONFIGURED, False):
         return
-    
+
     env_log_level = os.getenv(log_level_env_var, "").upper()
     app_log_level = getattr(logging, env_log_level, default_log_level)
     app_log_render = _get_log_render()
 
-    common_log_processors = [structlog.stdlib.add_logger_name, structlog.stdlib.add_log_level]
+    common_log_processors = [
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+    ]
 
     structlog.configure(
         processors=[
@@ -44,11 +50,11 @@ def setup_logging(default_log_level = logging.INFO, log_level_env_var = "LOG_LEV
             structlog.processors.StackInfoRenderer(),
             app_log_render,
         ],
-        cache_logger_on_first_use = True,
-        logger_factory = structlog.stdlib.LoggerFactory(),
-        wrapper_class = structlog.stdlib.BoundLogger
+        cache_logger_on_first_use=True,
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        wrapper_class=structlog.stdlib.BoundLogger,
     )
-	
+
     app_log_formatter = logging.Formatter("%(message)s")
 
     stdout_log_handler = logging.StreamHandler(sys.stdout)
