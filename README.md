@@ -39,3 +39,8 @@ violation lines:  2018-01-01 23:05:07.421000 1001 17 15 9 8 7.9 BATT
 20180101 23:02:11.302|1000|17|15|9|8|7.7|BATT
 20180101 23:04:11.531|1000|17|15|9|8|7.9|BATT
 20180101 23:05:07.421|1001|17|15|9|8|7.9|BATT
+
+uv run pytest .\tests\integration\test_cli.py
+uv run pytest .\tests\integration\test_alerter.py
+uv run pytest tests/unit/test_logging_setup.py
+uv run pytest .\tests\integration\test_log_parser.py

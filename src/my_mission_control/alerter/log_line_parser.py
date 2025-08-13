@@ -1,3 +1,7 @@
+"""
+Parses telemetry log file lines into structured LogEntry objects.
+"""
+
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
@@ -17,8 +21,8 @@ logger = get_logger(__name__)
 
 def parse_log_line(line) -> Optional[LogEntry]:
     """
-    Parse single line and return timestamp, satellit_id, red_high_limit, yellow_high_limit,
-    yellow_low_limit, red_low_limit, raw_value, component
+    Parse a telemetry log line into a LogEntry object.
+    Returns None if the line is malformed or parsing fails.
     """
     parts = line.strip().split(DELIMITER)
     if len(parts) != EXPECTED_FIELD_COUNT:

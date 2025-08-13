@@ -1,3 +1,10 @@
+"""
+Tracks and evaluates alert conditions for satellite telemetry components.
+
+Uses component-specific strategies to determine if a log entry triggers an alert.
+Alerts are generated when violations exceed a defined threshold within a time window.
+"""
+
 from collections import defaultdict, deque
 from datetime import datetime, timedelta
 from typing import Deque, Dict, Optional
@@ -16,7 +23,20 @@ TIME_DELTA = timedelta(minutes=TIME_WINDOW_MINUTES)
 
 
 class AlertTracker:
+    """
+    Tracks alerts conditions for satellite components over time.
+
+    Maintains the timestamp queues and applies evaluation strategies to determine whether alerts should be triggered.
+    """
+
     def __init__(self, alert_eval_strategy_map: Dict[str, AlertEvalStrategy]):
+        """
+        Initializes the AlertTracker with evaluation stratergies.
+
+        Args:
+            alert_evaluation_stragegy_map (Dict[str, AlertEvalStrategy]):
+            Mapping of component names to their alert evaluation strategies.
+        """
         self.alert_eval_strategy_map = alert_eval_strategy_map
         # For each satellite maintain queue for each of its component to store timestamp of alert condition
         self.alert_timestamps: Dict[int, Dict[str, Deque[datetime]]] = defaultdict(lambda: defaultdict(deque))
@@ -24,7 +44,26 @@ class AlertTracker:
         self.last_alert_timestamp: Dict[int, Dict[str, Optional[datetime]]] = defaultdict(lambda: defaultdict(lambda: None))
 
     def process_log_entry(self, log_entry: LogEntry) -> Optional[Alert]:
+        """
+        Processes a log entry and determines if an alert should be generated.
+
+        Args:
+            log_entry (LogEntry): A structured log entry containing satellite data.
+
+        Returns:
+            Optional[Alert]: An Alert object if conditions are met; otherwise, None.
+        """
+
         def eval_alert_condition(log_entry: LogEntry):
+            """
+            Evaluates the alert condition for a given log entry.
+
+            Args:
+                log_entry (LogEntry): The log entry to evaluate.
+
+            Returns:
+                Optional[str]: Severity level if an alert condition is met; othersise, None.
+            """
             eval_strategy = self.alert_eval_strategy_map[log_entry.cmpnt]
             if not eval_strategy:
                 logger.warning(f"No alert evaluation strategy found for {log_entry.cmpnt}")
@@ -56,3 +95,4 @@ class AlertTracker:
                 # Save timestamp that generated Alert, used as starting point to determine next alert
                 self.last_alert_timestamp[log_entry.sat_id][log_entry.cmpnt] = log_entry.ts
                 return alert
+        return None
