@@ -2,8 +2,8 @@ import argparse
 import json
 
 from my_mission_control.parser.log_parser_v2 import process_log_file
-from my_mission_control.utils import get_pyproject_metadata
 from my_mission_control.utils.log_util import setup_logging
+from my_mission_control.utils.pyproject_util import get_pyproject_metadata
 
 PROJECT_NAME, PROJECT_VERSION = get_pyproject_metadata()
 
