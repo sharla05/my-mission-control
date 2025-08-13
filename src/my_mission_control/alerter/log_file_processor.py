@@ -6,11 +6,9 @@ from typing import Deque, Dict, List, Optional
 
 from structlog.stdlib import get_logger
 
-TIME_FORMAT_INPUT = "%Y%m%d %H:%M:%S.%f"
-TIME_FORMAT_OUTPUT = "%Y-%m-%dT%H:%M:%S.%fZ"
-DELIMITER = "|"
-INPUT_FORMAT = "<timestamp>|<satellite-id>|<red-high-limit>|<yellow-high-limit>|<yellow-low-limit>|<red-low-limit>|<raw-value>|<component>"
-EXPECTED_FIELD_COUNT = len(INPUT_FORMAT.split(DELIMITER))
+from my_mission_control.alerter.alert_generator import Alert
+from my_mission_control.alerter.log_line_parser import LogEntry, parse_log_line
+
 
 VIOLATION_THRESHOLD = 3
 TIME_WINDOW_MINUTES = 5
@@ -23,36 +21,6 @@ SEVERITY_RED_LOW = "RED LOW"
 
 logger = get_logger(__name__)
 
-
-@dataclass
-class LogEntry:
-    ts: datetime
-    sat_id: int
-    rhl: int
-    yhl: int
-    yll: int
-    rll: int
-    val: float
-    cmpnt: str
-
-
-def parse_log_line(line) -> Optional[LogEntry]:
-    """
-    Parse single line and return timestamp, satellit_id, red_high_limit, yellow_high_limit,
-    yellow_low_limit, red_low_limit, raw_value, component
-    """
-    parts = line.strip().split(DELIMITER)
-    if len(parts) != EXPECTED_FIELD_COUNT:
-        logger.warning(f"Invalid line, expected {EXPECTED_FIELD_COUNT} fields, got {len(parts)}")
-        return None
-
-    try:
-        ts_str, sat_id, rhl, yhl, yll, rll, val, cmpnt = parts
-        ts = datetime.strptime(ts_str, TIME_FORMAT_INPUT)
-        return LogEntry(ts, int(sat_id), int(rhl), int(yhl), int(yll), int(rll), float(val), cmpnt)
-    except Exception as e:
-        logger.error(f"Failed to parse line: '{line}' - {e}", exc_info=True)
-        return None
 
 
 def is_alert_condition(log_entry: LogEntry) -> bool:
@@ -108,13 +76,8 @@ def process_log_file(log_file: str) -> List[dict]:
 
                 if last_alert_ts is None or first_ts > last_alert_ts:
                     severity = SEVERITY_RED_HIGH if log_entry.cmpnt == COMPONENT_TSTAT else SEVERITY_RED_LOW
-                    alert = {
-                        "satelliteId": log_entry.sat_id,
-                        "severity": severity,
-                        "component": log_entry.cmpnt,
-                        "timestamp": first_ts.strftime(TIME_FORMAT_OUTPUT),
-                    }
-                    alerts.append(alert)
+                    alert = Alert(log_entry.sat_id, severity, log_entry.cmpnt, first_ts)
+                    alerts.append(alert.to_dict())
 
                     # last_alert_time[log_entry.sat_id][log_entry.cmpnt] = first_ts # should be 'ts', that is, last timestamp of violation entry
                     last_alert_ts_by_sat_cmpnt[log_entry.sat_id][log_entry.cmpnt] = log_entry.ts  # should be 'ts', that is, last timestamp of violation entry
