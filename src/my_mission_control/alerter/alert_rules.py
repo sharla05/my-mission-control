@@ -21,10 +21,10 @@ def evaluate_alert_condition(log_entry: LogEntry) -> Optional[str]:
 
     # Battery alert: Only consider battery voltage readings that are under the red-low-limit
     if log_entry.cmpnt == COMPONENT_BATT and log_entry.val < log_entry.rll:
-            return SEVERITY_RED_LOW
+        return SEVERITY_RED_LOW
 
     # Temperature alert: Only consider thermostat readings that exceed the red-high-limit
     if log_entry.cmpnt == COMPONENT_TSTAT and log_entry.val > log_entry.rhl:
-            return SEVERITY_RED_HIGH
+        return SEVERITY_RED_HIGH
 
     return None

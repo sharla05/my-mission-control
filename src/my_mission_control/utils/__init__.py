@@ -6,7 +6,7 @@ import tomli as toml
 logger = structlog.get_logger(__name__)
 
 
-def find_pyproject_toml(start_path: Path) -> Path | None:
+def find_pyproject_toml(start_path: Path) -> Optional[Path]:
     """
     Traverse folder tree from starting path to find pyproject.toml.
 

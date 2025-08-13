@@ -23,7 +23,6 @@ class AlertTracker:
         # For each satellite maintain dictionary for each of its component to store timestamp of last alert condition
         self.last_alert_timestamp: Dict[int, Dict[str, Optional[datetime]]] = defaultdict(lambda: defaultdict(lambda: None))
 
-
     def process_log_entry(self, log_entry: LogEntry) -> Optional[Alert]:
         def eval_alert_condition(log_entry: LogEntry):
             eval_strategy = self.alert_eval_strategy_map[log_entry.cmpnt]
@@ -31,7 +30,8 @@ class AlertTracker:
                 logger.warning(f"No alert evaluation strategy found for {log_entry.cmpnt}")
                 return None
             return eval_strategy.evaluate(log_entry)
-        severity:Optional[str] = eval_alert_condition(log_entry)
+
+        severity: Optional[str] = eval_alert_condition(log_entry)
 
         if not severity:
             return None

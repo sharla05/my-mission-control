@@ -19,7 +19,6 @@ SEVERITY_RED_LOW = "RED LOW"
 logger = get_logger(__name__)
 
 
-
 def is_alert_condition(log_entry: LogEntry) -> bool:
     assert log_entry is not None, "log_entry must not be None"
 

@@ -10,6 +10,7 @@ TIME_FORMAT_OUTPUT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 logger = get_logger(__name__)
 
+
 @dataclass
 class Alert:
     satelliteId: int
