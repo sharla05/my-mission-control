@@ -1,5 +1,6 @@
 from collections import defaultdict, deque
 from datetime import datetime, timedelta
+import json
 from typing import List
 
 from structlog.stdlib import get_logger
@@ -93,6 +94,6 @@ def process_log_file(log_file: str) -> List[dict]:
 					
 					last_alert_time[sat_id][cmpnt] = first_ts # should be 'ts', that is, last timestamp of violation entry
 					
-	logger.info(alerts)
+	logger.info(json.dumps(alerts))
 	return alerts
 

@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from typing import Any, Dict, Optional
 
 import structlog
 
@@ -20,7 +21,10 @@ def _get_log_render():
     return structlog.dev.ConsoleRenderer()
 
 
-def setup_logging(default_log_level = logging.INFO, log_level_env_var = "LOG_LEVEL", **global_context):
+def setup_logging(
+    default_log_level: int = logging.INFO,
+    log_level_env_var: str = "LOG_LEVEL",
+    **global_context: Any):
     """
     Setup structlog configuration and integration with standard logging library, 
     creat global context variable for use across the application

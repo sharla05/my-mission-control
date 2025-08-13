@@ -35,6 +35,6 @@ def test_process_log_file_alert_tiggered():
 	try:
 		alerts = process_log_file(path)
 		print("test alerts = ", alerts)
-		# assert len(alerts) == 2	# nosec
+		assert len(alerts) == 2	# nosec
 	finally:
 		os.remove(path) # cleanup

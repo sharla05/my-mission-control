@@ -6,7 +6,7 @@ import logging
 import pytest
 import structlog
 
-from my_mission_control.utils.log_util import setup_logging, LOG_CONFIGURED, DEV_ENVIRONMENT, PROD_ENVIRONMENT
+from my_mission_control.utils.log_util_v2 import setup_logging, LOG_CONFIGURED, DEV_ENVIRONMENT, PROD_ENVIRONMENT
 
 @pytest.fixture(autouse=True)
 def reset_logging_config():
@@ -28,7 +28,8 @@ def test_console_renderer_development_env(capsys):
 
 	with capsys.disabled():
 		logger.info(test_event_msg, test_key=test_key_value)
-		
+	
+	output_not_json = False
 	output = capsys.readouterr().out
 	try:
 		log_entry = json.loads(output)
@@ -74,6 +75,7 @@ def test_console_renderer_unknown_env(capsys):
 	with capsys.disabled():
 		logger.info(test_event_msg, test_key=test_key_value)
 		
+	output_not_json = False
 	output = capsys.readouterr().out
 	try:
 		log_entry = json.loads(output)
