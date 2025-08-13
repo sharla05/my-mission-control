@@ -7,7 +7,7 @@ Implements the Strategy Pattern to support flexible and extensible alert evaluat
 from abc import ABC
 from typing import Optional
 
-from my_mission_control.alerter.log_line_parser import LogEntry
+from my_mission_control.entity.log_entry import LogEntry
 
 SEVERITY_RED_HIGH = "RED HIGH"
 SEVERITY_RED_LOW = "RED LOW"

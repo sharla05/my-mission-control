@@ -4,9 +4,9 @@ from typing import Deque, Dict, Optional
 
 from structlog.stdlib import get_logger
 
-from my_mission_control.alerter.alert_generator import Alert
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy
-from my_mission_control.alerter.log_line_parser import LogEntry
+from my_mission_control.entity.alert import Alert
+from my_mission_control.entity.log_entry import LogEntry
 
 logger = get_logger(__name__)
 

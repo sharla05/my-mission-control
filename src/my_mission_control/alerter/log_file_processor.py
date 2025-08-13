@@ -4,8 +4,9 @@ from typing import Deque, Dict, List, Optional
 
 from structlog.stdlib import get_logger
 
-from my_mission_control.alerter.alert_generator import Alert
-from my_mission_control.alerter.log_line_parser import LogEntry, parse_log_line
+from my_mission_control.alerter.log_line_parser import parse_log_line
+from my_mission_control.entity.alert import Alert
+from my_mission_control.entity.log_entry import LogEntry
 
 VIOLATION_THRESHOLD = 3
 TIME_WINDOW_MINUTES = 5

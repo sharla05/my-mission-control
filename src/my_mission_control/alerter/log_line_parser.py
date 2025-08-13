@@ -4,6 +4,8 @@ from typing import Optional
 
 from structlog.stdlib import get_logger
 
+from my_mission_control.entity.log_entry import LogEntry
+
 TIME_FORMAT_INPUT = "%Y%m%d %H:%M:%S.%f"
 DELIMITER = "|"
 INPUT_FORMAT = "<timestamp>|<satellite-id>|<red-high-limit>|<yellow-high-limit>|<yellow-low-limit>|<red-low-limit>|<raw-value>|<component>"
@@ -11,18 +13,6 @@ EXPECTED_FIELD_COUNT = len(INPUT_FORMAT.split(DELIMITER))
 
 
 logger = get_logger(__name__)
-
-
-@dataclass
-class LogEntry:
-    ts: datetime
-    sat_id: int
-    rhl: int
-    yhl: int
-    yll: int
-    rll: int
-    val: float
-    cmpnt: str
 
 
 def parse_log_line(line) -> Optional[LogEntry]:
