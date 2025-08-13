@@ -1,7 +1,8 @@
 from typing import Optional
-from structlog.stdlib import get_logger
-from my_mission_control.alerter.log_line_parser import LogEntry
 
+from structlog.stdlib import get_logger
+
+from my_mission_control.alerter.log_line_parser import LogEntry
 
 logger = get_logger(__name__)
 
@@ -11,7 +12,7 @@ COMPONENT_BATT = "BATT"
 SEVERITY_RED_HIGH = "RED HIGH"
 SEVERITY_RED_LOW = "RED LOW"
 
-    
+
 def evaluate_alert_condition(log_entry: LogEntry) -> Optional[str]:
     """
     Return the severity if alert condition is matched else return None

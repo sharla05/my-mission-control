@@ -21,6 +21,6 @@ class Alert:
         alert_dict = asdict(self)
         alert_dict["timestamp"] = self.timestamp.strftime(TIME_FORMAT_OUTPUT)
         return alert_dict
-    
+
     def to_json(self) -> str:
         return json.dumps(self.to_dict())

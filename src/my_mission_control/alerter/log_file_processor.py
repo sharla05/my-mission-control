@@ -1,6 +1,4 @@
-import json
 from collections import defaultdict, deque
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Deque, Dict, List, Optional
 
@@ -8,7 +6,6 @@ from structlog.stdlib import get_logger
 
 from my_mission_control.alerter.alert_generator import Alert
 from my_mission_control.alerter.log_line_parser import LogEntry, parse_log_line
-
 
 VIOLATION_THRESHOLD = 3
 TIME_WINDOW_MINUTES = 5

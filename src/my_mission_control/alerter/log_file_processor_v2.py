@@ -1,16 +1,10 @@
-import json
-from collections import defaultdict, deque
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import Deque, Dict, List, Optional
+from typing import List
 
 from structlog.stdlib import get_logger
 
 from my_mission_control.alerter.alert_generator import Alert
 from my_mission_control.alerter.alert_tracker import AlertTracker
 from my_mission_control.alerter.log_line_parser import LogEntry, parse_log_line
-
-
 
 logger = get_logger(__name__)
 
