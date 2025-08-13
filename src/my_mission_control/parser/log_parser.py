@@ -1,6 +1,6 @@
+import json
 from collections import defaultdict, deque
 from datetime import datetime, timedelta
-import json
 from typing import List
 
 from structlog.stdlib import get_logger

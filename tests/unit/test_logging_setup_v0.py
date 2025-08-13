@@ -1,10 +1,11 @@
-import unittest
-import os
-import io
 import contextlib
+import io
+import os
+import unittest
 
 import structlog
-from my_mission_control.utils.log_util import setup_logging, LOG_CONFIGURED
+
+from my_mission_control.utils.log_util import LOG_CONFIGURED, setup_logging
 
 
 class TestStructlogSetup(unittest.TestCase):

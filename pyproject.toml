@@ -1,7 +1,7 @@
 [project]
 name = "my-mission-control"
 version = "0.1.0"
-description = "Add your description here"
+description = "Alert from satellite log file"
 readme = "README.md"
 authors = [
     { name = "Lalit Sharma", email = "lalitsharma.email@gmail.com" }
@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-my-mission-control = "my_mission_control:main"
+my-mission-control = "my_mission_control.entrypoints.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.8.8,<0.9.0"]
@@ -35,3 +35,25 @@ dev = [
 ]
 [tool.pytest.ini_options]
 addopts = "--capture=no"
+
+[tool.isort]
+profile = "black"
+line_length = 999
+multi_line_output = 3
+
+[tool.ruff]
+line-length = 999
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "W", "F"]
+ignore = ["E501"]
+
+[tool.pyright]
+include = ["src/", "tests/"]
+exclude = ["**/__pycache__", ".venv", ".pytest_cache", ".ruff_cache"]
+pythonVersion = "3.13"
+reportMissingImports = true
+reportMissingTypeStubs = true
+venvPath = "."
+venv = ".venv"

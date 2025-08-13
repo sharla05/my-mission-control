@@ -1,15 +1,15 @@
 import json
-import os
 import logging
+import os
 
 import pytest
 import structlog
 
 from my_mission_control.utils.log_util_v2 import (
-    setup_logging,
-    LOG_CONFIGURED,
     DEV_ENVIRONMENT,
+    LOG_CONFIGURED,
     PROD_ENVIRONMENT,
+    setup_logging,
 )
 
 

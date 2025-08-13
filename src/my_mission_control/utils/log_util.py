@@ -4,7 +4,6 @@ import sys
 
 import structlog
 
-
 LOG_CONFIGURED = "_log_configured"
 DEV_ENVIRONMENT = "development"
 PROD_ENVIRONMENT = "production"
