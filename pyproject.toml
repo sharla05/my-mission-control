@@ -38,11 +38,11 @@ addopts = "--capture=no"
 
 [tool.isort]
 profile = "black"
-line_length = 999
+line_length = 299
 multi_line_output = 3
 
 [tool.ruff]
-line-length = 999
+line-length = 299
 target-version = "py313"
 
 [tool.ruff.lint]
@@ -57,3 +57,15 @@ reportMissingImports = true
 reportMissingTypeStubs = true
 venvPath = "."
 venv = ".venv"
+
+[tool.bandit]
+skips = ["B101"]  # Example: skip assert usage warnings
+exclude = ["tests", ".venv"]
+
+[tool.coverage.run]
+branch = true
+source = ["my_mission_control"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

@@ -36,7 +36,16 @@ def parse_log_line(line):
     try:
         ts_str, sat_id, rhl, yhl, yll, rll, val, cmpnt = parts
         ts = datetime.strptime(ts_str, TIME_FORMAT_INPUT)
-        return (ts, int(sat_id),int(rhl),int(yhl),int(yll),int(rll),float(val),cmpnt,)
+        return (
+            ts,
+            int(sat_id),
+            int(rhl),
+            int(yhl),
+            int(yll),
+            int(rll),
+            float(val),
+            cmpnt,
+        )
     except Exception as e:
         logger.error(f"Failed to parse line: '{line}' - {e}", exc_info=True)
         return None
