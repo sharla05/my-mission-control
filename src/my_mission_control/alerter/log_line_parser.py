@@ -2,8 +2,6 @@
 Parses telemetry log file lines into structured LogEntry objects.
 """
 
-import os
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
@@ -30,5 +28,5 @@ def parse_log_line(line) -> Optional[LogEntry]:
         ts = datetime.strptime(ts_str, InputLogFileCfg.LOG_LINE_TIMESTAMP_FORMAT)
         return LogEntry(ts, int(sat_id), int(rhl), int(yhl), int(yll), int(rll), float(val), cmpnt)
     except Exception as e:
-        logger.error(f"Failed to parse line: '{line}' - {e}", exc_info=True)
+        logger.error(f"Failed to parse line: '{line}' - {e}")
         return None

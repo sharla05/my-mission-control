@@ -46,7 +46,7 @@ def parse_log_line(line):
             cmpnt,
         )
     except Exception as e:
-        logger.error(f"Failed to parse line: '{line}' - {e}", exc_info=True)
+        logger.error(f"Failed to parse line: '{line}' - {e}")
         return None
 
 

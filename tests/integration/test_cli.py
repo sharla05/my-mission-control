@@ -60,7 +60,7 @@ def test_main_with_temp_file(capsys, monkeypatch):
         # print("expected_lines: \n", expected_lines)
 
         # Compare the lists of lines directly
-        assert actual_lines == expected_lines  # nosec
+        assert actual_lines == expected_lines
 
     finally:
         # Clean up the temprary file
