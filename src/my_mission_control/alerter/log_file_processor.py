@@ -44,7 +44,6 @@ def process_log_file(log_file: str) -> List[dict]:
     # For each satellite maintain dictionary for each of its component to store timestamp of last alert condition
     last_alert_ts_by_sat_cmpnt: Dict[int, Dict[str, Optional[datetime]]] = defaultdict(lambda: defaultdict(lambda: None))
     alerts: List[dict] = []
-    print("")
 
     with open(log_file, "r") as log_lines:
         for line in log_lines:

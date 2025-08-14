@@ -1,21 +1,17 @@
 from datetime import datetime, timedelta
+from io import StringIO
 from typing import Dict, List, Optional
 
 from my_mission_control.alerter.alert_rules import COMPONENT_BATT, COMPONENT_TSTAT
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy, RedHighAlertStrategy, RedLowAlertStrategy
 from my_mission_control.alerter.alert_tracker import AlertTracker
-from my_mission_control.alerter.log_file_processor_v2 import _process_log_line
+from my_mission_control.alerter.log_file_processor_v2 import _process_log_line, _process_log_lines
 from my_mission_control.entity.alert import Alert
 from tests.utils.log_helper import format_ts, make_log_line
 
 
 class TestLogLineProcessing:
     """ """
-
-    def setup_method(self):
-        """ """
-        alert_eval_strategy_map: Dict[str, AlertEvalStrategy] = {COMPONENT_BATT: RedLowAlertStrategy(), COMPONENT_TSTAT: RedHighAlertStrategy()}
-        self.alert_tracker = AlertTracker(alert_eval_strategy_map)
 
     def test_alert_triggered_with_sample_data(self):
         base_time = datetime(2018, 1, 1, 23, 1, 5)
@@ -37,15 +33,12 @@ class TestLogLineProcessing:
             make_log_line(base_time + timedelta(seconds=242.42), 1001, 17, 15, 9, 8, 7.9, "BATT"),
         ]
 
-        alerts: List[dict] = []
-        # Process each log line individually and collect any generated alerts
-        for line in lines:
-            alert: Optional[Alert] = _process_log_line(line, self.alert_tracker)
-            if alert:
-                alerts.append(alert.to_dict())
+        # Simulate a file-like object using StringIO
+        fake_log_file = StringIO("\n".join(lines))
+        alerts: List[dict] = _process_log_lines(fake_log_file)
 
         # Assertions
-        assert len(alerts) == 2, "Expected exactly one alert to be triggered"
+        assert len(alerts) == 2, "Expected exactly two alerts to be triggered"
 
     def test_battery_alert_triggered(self):
         """Positive - battery"""
@@ -58,12 +51,9 @@ class TestLogLineProcessing:
             make_log_line(base_time + timedelta(seconds=120), 1001, 27, 15, 9, 8, 7.8, "BATT"),
         ]
 
-        alerts: List[dict] = []
-        for line in lines:
-            alert: Optional[Alert] = _process_log_line(line, self.alert_tracker)
-            if alert:
-                print("alert", alert)
-                alerts.append(alert.to_dict())
+        # Simulate a file-like object using StringIO
+        fake_log_file = StringIO("\n".join(lines))
+        alerts: List[dict] = _process_log_lines(fake_log_file)
 
         assert len(alerts) == 1, "Expected one battery alert to be triggered"
         assert alerts[0]["component"] == "BATT", "Alert should be for battery"
@@ -80,11 +70,9 @@ class TestLogLineProcessing:
             make_log_line(base_time + timedelta(seconds=60), 1002, 101, 98, 25, 20, 101.9, "TSTAT"),
         ]
 
-        alerts: List[dict] = []
-        for line in lines:
-            alert: Optional[Alert] = _process_log_line(line, self.alert_tracker)
-            if alert:
-                alerts.append(alert.to_dict())
+        # Simulate a file-like object using StringIO
+        fake_log_file = StringIO("\n".join(lines))
+        alerts: List[dict] = _process_log_lines(fake_log_file)
 
         assert len(alerts) == 1, "Expected one thermostat alert to be triggered"
         assert alerts[0]["component"] == "TSTAT", "Alert should be for thermostat"
@@ -102,11 +90,9 @@ class TestLogLineProcessing:
             make_log_line(base_time + timedelta(seconds=90), 1001, 17, 15, 9, 8, 7.1, "BATT"),  # Fourth entry
         ]
 
-        alerts: List[dict] = []
-        for line in lines:
-            alert: Optional[Alert] = _process_log_line(line, self.alert_tracker)
-            if alert:
-                alerts.append(alert.to_dict())
+        # Simulate a file-like object using StringIO
+        fake_log_file = StringIO("\n".join(lines))
+        alerts: List[dict] = _process_log_lines(fake_log_file)
 
         assert len(alerts) == 1, "Expected exactly one alert to be triggered, not a new one for the fourth entry"
         assert alerts[0]["component"] == "BATT", "Alert should be for battery"
@@ -127,11 +113,9 @@ class TestLogLineProcessing:
             make_log_line(base_time + timedelta(minutes=7), 1001, 17, 15, 9, 8, 7.3, "BATT"),  # Second alert triggered here
         ]
 
-        alerts: List[dict] = []
-        for line in lines:
-            alert: Optional[Alert] = _process_log_line(line, self.alert_tracker)
-            if alert:
-                alerts.append(alert.to_dict())
+        # Simulate a file-like object using StringIO
+        fake_log_file = StringIO("\n".join(lines))
+        alerts: List[dict] = _process_log_lines(fake_log_file)
 
         assert len(alerts) == 2, "Expected two separate alerts to be triggered"
         assert all(a["component"] == "BATT" for a in alerts), "Both alerts should be for battery"
@@ -148,11 +132,9 @@ class TestLogLineProcessing:
             make_log_line(base_time + timedelta(seconds=120), 1001, 17, 15, 9, 8, 7.8, "BATT"),  # Satellite 1001
         ]
 
-        alerts: List[dict] = []
-        for line in lines:
-            alert: Optional[Alert] = _process_log_line(line, self.alert_tracker)
-            if alert:
-                alerts.append(alert.to_dict())
+        # Simulate a file-like object using StringIO
+        fake_log_file = StringIO("\n".join(lines))
+        alerts: List[dict] = _process_log_lines(fake_log_file)
 
         assert len(alerts) == 0, "No alert should be triggered with readings from different satellites"
 
@@ -166,121 +148,8 @@ class TestLogLineProcessing:
             make_log_line(base_time + timedelta(minutes=6, seconds=30), 1001, 17, 15, 9, 8, 7.8, "BATT"),
         ]
 
-        alerts: List[dict] = []
-        for line in lines:
-            alert: Optional[Alert] = _process_log_line(line, self.alert_tracker)
-            if alert:
-                alerts.append(alert.to_dict())
+        # Simulate a file-like object using StringIO
+        fake_log_file = StringIO("\n".join(lines))
+        alerts: List[dict] = _process_log_lines(fake_log_file)
 
         assert len(alerts) == 0, "No alert should be triggered when readings are outside the 5-minute window"
-
-        # def test_alert_triggered_for_batt(self):
-        #     """
-        #     Tests that a RED_LOW alert is correctly triggered for the BATT component.
-        #     """
-        #     base_time = datetime(2025, 8, 7, 19, 0, 0)
-
-        #     # These three lines all have a raw_value below the red_low threshold (5.0)
-        #     # The third line should trigger the alert because it's the 3rd violation
-        #     lines = [
-        #         make_log_line(base_time, 1002, 90, 10, 5, 0, 4.9, "BATT"),
-        #         make_log_line(base_time + timedelta(minutes=1), 1002, 90, 10, 5, 0, 4.8, "BATT"),
-        #         make_log_line(base_time + timedelta(minutes=2), 1002, 90, 10, 5, 0, 4.7, "BATT"),
-        #     ]
-
-        #     alerts: List[dict] = []
-        #     # Process each log line individually and collect any generated alerts
-        #     for line in lines:
-        #         alert: Optional[Alert] = _process_log_line(line, self.alert_tracker)
-        #         if alert:
-        #             alerts.append(alert.to_dict())
-
-        #     # Assertions
-        #     assert len(alerts) == 1, "Expected exactly one alert to be triggered"
-
-        #     triggered_alert = alerts[0]
-
-        #     assert triggered_alert["component"] == "BATT"
-        #     assert triggered_alert["type"] == "RED_LOW"
-        #     assert triggered_alert["violation_count"] == 3
-        #     # Use timedelta to allow for slight precision differences
-        #     assert triggered_alert["timestamp"] == format_ts(base_time + timedelta(minutes=2))
-
-        # def test_no_alert_triggered_for_batt(self):
-        #     """
-        #     Tests that no alert is triggered when the raw_value is within the limits.
-        #     """
-        #     base_time = datetime(2025, 8, 7, 19, 0, 0)
-
-        #     lines = [
-        #         make_log_line(base_time, 1002, 90, 10, 5, 0, 5.1, "BATT"),
-        #         make_log_line(base_time + timedelta(minutes=1), 1002, 90, 10, 5, 0, 5.0, "BATT"),
-        #         make_log_line(base_time + timedelta(minutes=2), 1002, 90, 10, 5, 0, 5.2, "BATT"),
-        #     ]
-
-        #     alerts = []
-        #     for line in lines:
-        #         alert: Optional[Alert] = _process_log_line(line, self.alert_tracker)
-        #         if alert:
-        #             alerts.append(alert)
-
-        #     assert len(alerts) == 0, "Expected no alerts to be triggered"
-
-
-# ===============================================================================================================
-# def test_alert_triggered_for_batt():
-#     """
-#     Tests that a RED_LOW alert is correctly triggered for the BATT component.
-#     """
-#     base_time = datetime(2025, 8, 7, 19, 0, 0)
-
-#     # These three lines all have a raw_value below the red_low threshold (5.0)
-#     # The third line should trigger the alert because it's the 3rd violation
-#     lines = [
-#         make_log_line(base_time, 1002, 90, 10, 5, 0, 4.9, "BATT"),
-#         make_log_line(base_time + timedelta(minutes=1), 1002, 90, 10, 5, 0, 4.8, "BATT"),
-#         make_log_line(base_time + timedelta(minutes=2), 1002, 90, 10, 5, 0, 4.7, "BATT"),
-#     ]
-
-#     alerts: List[dict] = []
-
-#     # Map each component to its corresponding alert evaluation strategy
-#     alert_eval_strategy_map: Dict[str, AlertEvalStrategy] = {COMPONENT_BATT: RedLowAlertStrategy(), COMPONENT_TSTAT: RedHighAlertStrategy()}
-#     # Initialize the alert tracker with alert evaluation stragegy mapping
-#     alert_tracker = AlertTracker(alert_eval_strategy_map)
-#     # Process each log line individually and collect any generated alerts
-#     for line in lines:
-#         alert: Optional[Alert] = _process_log_line(line, alert_tracker)
-#         if alert:
-#             alerts.append(alert.to_dict())
-
-#     # Assertions
-#     assert len(alerts) == 1, "Expected exactly one alert to be triggered"
-
-#     triggered_alert = alerts[0]
-
-#     assert triggered_alert["component"] == "BATT"
-#     assert triggered_alert["type"] == "RED_LOW"
-#     assert triggered_alert["violation_count"] == 3
-#     # Use timedelta to allow for slight precision differences
-#     assert triggered_alert["timestamp"] == format_ts(base_time + timedelta(minutes=2))
-
-# def test_no_alert_triggered_for_batt():
-#     """
-#     Tests that no alert is triggered when the raw_value is within the limits.
-#     """
-#     base_time = datetime(2025, 8, 7, 19, 0, 0)
-
-#     lines = [
-#         make_log_line(base_time, 1002, 90, 10, 5, 0, 5.1, "BATT"),
-#         make_log_line(base_time + timedelta(minutes=1), 1002, 90, 10, 5, 0, 5.0, "BATT"),
-#         make_log_line(base_time + timedelta(minutes=2), 1002, 90, 10, 5, 0, 5.2, "BATT"),
-#     ]
-
-#     alerts = []
-#     for line in lines:
-#         alert = _process_log_line(line)
-#         if alert:
-#             alerts.append(alert)
-
-#     assert len(alerts) == 0, "Expected no alerts to be triggered"

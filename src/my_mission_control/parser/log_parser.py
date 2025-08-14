@@ -57,7 +57,6 @@ def process_log_file(log_file: str) -> List[dict]:
     violation_by_sat_cmpnt = defaultdict(lambda: defaultdict(deque))
     last_alert_time = defaultdict(lambda: defaultdict(lambda: None))
     alerts = []
-    print("")
 
     with open(log_file, "r") as log_lines:
         for line in log_lines:
