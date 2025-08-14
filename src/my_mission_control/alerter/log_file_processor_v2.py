@@ -12,7 +12,7 @@ from structlog.stdlib import get_logger
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy, RedHighAlertStrategy, RedLowAlertStrategy
 from my_mission_control.alerter.alert_tracker import AlertTracker
 from my_mission_control.alerter.log_line_parser import parse_log_line
-from my_mission_control.config.settings import LogCfg
+from my_mission_control.config.settings import InputLogFileCfg
 from my_mission_control.entity.alert import Alert
 from my_mission_control.entity.log_entry import LogEntry
 
@@ -61,7 +61,7 @@ def _process_log_lines(log_lines: TextIO) -> List[dict]:
     alerts: List[dict] = []
 
     # Map each component to its corresponding alert evaluation strategy
-    alert_eval_strategy_map: Dict[str, AlertEvalStrategy] = {LogCfg.LOG_LINE_COMPONENT_BATT: RedLowAlertStrategy(), LogCfg.LOG_LINE_COMPONENT_TSTAT: RedHighAlertStrategy()}
+    alert_eval_strategy_map: Dict[str, AlertEvalStrategy] = {InputLogFileCfg.LOG_LINE_COMPONENT_BATT: RedLowAlertStrategy(), InputLogFileCfg.LOG_LINE_COMPONENT_TSTAT: RedHighAlertStrategy()}
     # Initialize the alert tracker with alert evaluation stragegy mapping
     alert_tracker = AlertTracker(alert_eval_strategy_map)
 

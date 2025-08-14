@@ -7,7 +7,7 @@ Implements the Strategy Pattern to support flexible and extensible alert evaluat
 from abc import ABC
 from typing import Optional
 
-from my_mission_control.config.settings import SeverityLevelCfg
+from my_mission_control.config.settings import AlertOutputCfg
 from my_mission_control.entity.log_entry import LogEntry
 
 
@@ -31,7 +31,7 @@ class RedLowAlertStrategy(AlertEvalStrategy):
         Returns 'RED LOW' if condition is met
         """
         if log_entry.raw_value < log_entry.red_low_limit:
-            return SeverityLevelCfg.RED_LOW
+            return AlertOutputCfg.SEVERITY_RED_LOW
         return None
 
 
@@ -45,5 +45,5 @@ class RedHighAlertStrategy(AlertEvalStrategy):
         Returns 'RED HIGH' if condition is met
         """
         if log_entry.raw_value > log_entry.red_high_limit:
-            return SeverityLevelCfg.RED_HIGH
+            return AlertOutputCfg.SEVERITY_RED_HIGH
         return None

@@ -13,7 +13,7 @@ from typing import Deque, Dict, Optional
 from structlog.stdlib import get_logger
 
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy
-from my_mission_control.config.settings import AlertCfg
+from my_mission_control.config.settings import AlertRuleCfg
 from my_mission_control.entity.alert import Alert
 from my_mission_control.entity.log_entry import LogEntry
 from my_mission_control.utils.utility import get_env_var_int
@@ -21,7 +21,7 @@ from my_mission_control.utils.utility import get_env_var_int
 logger = get_logger(__name__)
 
 
-TIME_DELTA: timedelta = timedelta(minutes=AlertCfg.ALERT_VIOLATION_TIME_WINDOW_MINUTES)
+TIME_DELTA: timedelta = timedelta(minutes=AlertRuleCfg.ALERT_VIOLATION_TIME_WINDOW_MINUTES)
 
 
 class AlertTracker:
@@ -86,7 +86,7 @@ class AlertTracker:
             timestamps_dq.popleft()
 
         # Check number of entries exceed the violation threshold
-        if len(timestamps_dq) >= AlertCfg.ALERT_VIOLATION_COUNT_THRESHOLD:
+        if len(timestamps_dq) >= AlertRuleCfg.ALERT_VIOLATION_COUNT_THRESHOLD:
             first_ts = timestamps_dq[0]
             last_alert_ts = self.last_alert_timestamp[log_entry.satellite_id][log_entry.component]
 
