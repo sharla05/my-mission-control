@@ -22,6 +22,7 @@ class LogEntry:
         raw_value: Raw sensor measurement value.
         component: Component identifier.
     """
+
     timestamp: datetime
     satellite_id: int
     red_high_limit: int

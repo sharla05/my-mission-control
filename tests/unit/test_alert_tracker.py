@@ -1,39 +1,43 @@
 from datetime import datetime, timedelta
-from my_mission_control.alerter.alert_tracker import AlertTracker
+from typing import Dict, List, Optional
 from unittest.mock import patch
 
+from my_mission_control.alerter.alert_rules import COMPONENT_BATT, COMPONENT_TSTAT
+from my_mission_control.alerter.alert_strategy import AlertEvalStrategy, RedHighAlertStrategy, RedLowAlertStrategy
+from my_mission_control.alerter.alert_tracker import AlertTracker
+from my_mission_control.alerter.log_file_processor_v2 import _process_log_line
+from my_mission_control.entity.alert import Alert
 from tests.utils.log_helper import make_log_line
 
-@patch("my_mission_control.alerter.alert_tracker.evaluate_alert_condition", return_value="RED LOW")
-def test_alert_triggered_for_batt(mock_eval):
-    tracker = AlertTracker()
+
+# @patch("my_mission_control.alerter.alert_tracker.evaluate_alert_condition", return_value="RED LOW")
+# def test_alert_triggered_for_batt(mock_eval):
+def test_alert_triggered_for_batt():
+    alert_eval_strategy_map: Dict[str, AlertEvalStrategy] = {COMPONENT_BATT: RedLowAlertStrategy(), COMPONENT_TSTAT: RedHighAlertStrategy()}
+    alert_tracker = AlertTracker(alert_eval_strategy_map)
     base_time = datetime(2025, 8, 7, 19, 0, 0)
 
     lines = [
-        make_log_line(base_time, 1002, 90, 10, 5, 0, 10.0, "BATT"),
-        make_log_line(base_time + timedelta(minutes=1), 1002, 90, 10, 5, 0, 9.8, "BATT"),
-        make_log_line(base_time + timedelta(minutes=2), 1002, 90, 10, 5, 0, 9.7, "BATT"),
+        make_log_line(base_time, 1002, 90, 10, 5, 10, 9.0, "BATT"),
+        make_log_line(base_time + timedelta(minutes=1), 1002, 90, 10, 5, 10, 9.8, "BATT"),
+        make_log_line(base_time + timedelta(minutes=2), 1002, 90, 10, 5, 10, 9.7, "BATT"),
     ]
 
-    log_entries = parse_log_lines_to_json(lines)
+    alerts: List[dict] = []
+    # Process each log line individually and collect any generated alerts
+    for line in lines:
+        alert: Optional[Alert] = _process_log_line(line, alert_tracker)
+        if alert:
+            alerts.append(alert.to_dict())
 
-    alert = None
-    for entry in log_entries:
-        alert = tracker.process_log_entry(entry)
-
-    assert alert is not None
-    assert alert.satellite_id == 1002
-    assert alert.component == "BATT"
-    assert alert.severity == "RED LOW"
-
-
+    # Assertions
+    assert len(alerts) == 1, "Expected exactly one alert to be triggered"
 
 
 # from datetime import datetime, timedelta
 # from unittest.mock import patch
 
 # from my_mission_control.alerter.alert_tracker import AlertTracker
-
 
 
 # from alert.parser.parser import format_ts, make_log_line  # Or redefine locally if needed

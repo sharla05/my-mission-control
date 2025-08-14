@@ -1,10 +1,11 @@
-from typing import Dict, Optional
-import pytest
 from datetime import datetime, timedelta
+from typing import Dict, Optional
 from unittest.mock import Mock
 
-from my_mission_control.alerter.alert_tracker import AlertTracker, VIOLATION_THRESHOLD, TIME_DELTA
+import pytest
+
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy
+from my_mission_control.alerter.alert_tracker import TIME_DELTA, VIOLATION_THRESHOLD, AlertTracker
 from my_mission_control.entity.log_entry import LogEntry
 
 
@@ -17,11 +18,12 @@ class MockAlertEvalStrategy(AlertEvalStrategy):
             return "RED"
         return None
 
+
 class TestAlertTracker:
     """
     Unit tests for the AlertTracker class.
     """
-    
+
     @pytest.fixture
     def tracker(self):
         """
@@ -34,8 +36,7 @@ class TestAlertTracker:
         """
         Helper function to create a simplified LogEntry for testing.
         """
-        return LogEntry(timestamp=timestamp, satellite_id=1, component="TEST_CMPNT", raw_value=raw_value,
-                        red_high_limit=100, yellow_high_limit=90, yellow_low_limit=10, red_low_limit=5)
+        return LogEntry(timestamp=timestamp, satellite_id=1, component="TEST_CMPNT", raw_value=raw_value, red_high_limit=100, yellow_high_limit=90, yellow_low_limit=10, red_low_limit=5)
 
     def test_no_alert_for_single_violation(self, tracker):
         """
@@ -43,9 +44,9 @@ class TestAlertTracker:
         """
         timestamp = datetime(2023, 1, 1, 12, 0, 0)
         entry = self.make_log_entry(timestamp, 100)
-        
+
         alert = tracker.process_log_entry(entry)
-        
+
         assert alert is None
         assert len(tracker.alert_timestamps[1]["TEST_CMPNT"]) == 1
 
@@ -54,7 +55,7 @@ class TestAlertTracker:
         Tests that an alert is triggered exactly when the violation threshold is met.
         """
         base_time = datetime(2023, 1, 1, 12, 0, 0)
-        
+
         # Process violations one by one, staying within the time window
         alerts = []
         for i in range(VIOLATION_THRESHOLD):
@@ -63,13 +64,13 @@ class TestAlertTracker:
             alert = tracker.process_log_entry(entry)
             if alert:
                 alerts.append(alert)
-        
+
         # The third violation should trigger an alert
         assert len(alerts) == 1
         assert alerts[0].violation_count == VIOLATION_THRESHOLD
         assert alerts[0].component == "TEST_CMPNT"
         assert alerts[0].timestamp == base_time
-        
+
         # After the alert, the timestamps deque should contain all three entries
         assert len(tracker.alert_timestamps[1]["TEST_CMPNT"]) == VIOLATION_THRESHOLD
 
@@ -86,7 +87,7 @@ class TestAlertTracker:
         # A second violation occurs just outside the time window
         entry2 = self.make_log_entry(base_time + TIME_DELTA + timedelta(seconds=1), 100)
         tracker.process_log_entry(entry2)
-        
+
         # The first entry should have been removed, so the deque size is 1
         timestamps = tracker.alert_timestamps[1]["TEST_CMPNT"]
         assert len(timestamps) == 1
@@ -101,15 +102,15 @@ class TestAlertTracker:
         # Three violations, but the first is outside the time window of the third
         entry1 = self.make_log_entry(base_time, 100)
         tracker.process_log_entry(entry1)
-        
+
         entry2 = self.make_log_entry(base_time + timedelta(minutes=1), 100)
         tracker.process_log_entry(entry2)
-        
+
         entry3_ts = base_time + TIME_DELTA + timedelta(minutes=1)
         entry3 = self.make_log_entry(entry3_ts, 100)
-        
+
         alert = tracker.process_log_entry(entry3)
-        
+
         assert alert is None
         # The first entry should have been popped, so only two remain
         assert len(tracker.alert_timestamps[1]["TEST_CMPNT"]) == 2
@@ -119,20 +120,20 @@ class TestAlertTracker:
         Tests that a new alert is not generated for violations that fall within the same time window as a previous alert.
         """
         base_time = datetime(2023, 1, 1, 12, 0, 0)
-        
+
         # Trigger the first alert with VIOLATION_THRESHOLD entries
         for i in range(VIOLATION_THRESHOLD):
             timestamp = base_time + timedelta(seconds=i * 10)
             entry = self.make_log_entry(timestamp, 100)
             tracker.process_log_entry(entry)
-        
+
         # Verify first alert was triggered
         assert len(tracker.last_alert_timestamp[1]["TEST_CMPNT"]) > 0
-        
+
         # Add another violation just after the alert
         new_timestamp = base_time + timedelta(seconds=40)
         new_entry = self.make_log_entry(new_timestamp, 100)
         alert = tracker.process_log_entry(new_entry)
-        
+
         # No new alert should be generated, as the violation is within the same time window
         assert alert is None

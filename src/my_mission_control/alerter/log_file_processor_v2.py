@@ -41,20 +41,19 @@ def _process_log_line(line: str, alert_tracker: AlertTracker) -> Optional[Alert]
     if log_entry is None:
         logger.warning("Skipping malformed or unparseable line", line)
         return None
-    
     alert: Optional[Alert] = alert_tracker.process_log_entry(log_entry)
 
     if alert is None:
         return None
-    
     return alert
+
 
 def _process_log_lines(log_lines: TextIO) -> List[dict]:
     """
     Line-by-line processes satellite telemetry log and generates alerts.
 
     Initializes an alert tracker with component -specific strategies and evaluates each line.
-	Alerts are collected and returned as dictionaries with key in camelCase as required for reporting.
+        Alerts are collected and returned as dictionaries with key in camelCase as required for reporting.
 
     Args:
         log_lines (TextIO): A file-like object containing telemetry log lines.
@@ -92,6 +91,3 @@ def process_log_file(log_file: str) -> List[dict]:
     """
     with open(log_file, "r") as log_lines:
         return _process_log_lines(log_lines)
-
-
-

@@ -22,6 +22,7 @@ class Alert:
     """
     Specifies attributes to be included in an alert
     """
+
     satellite_id: int
     severity: str
     component: str
