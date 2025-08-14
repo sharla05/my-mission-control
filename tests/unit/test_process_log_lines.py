@@ -12,8 +12,8 @@ class TestProcessingLogFileLines:
     Simulates a file-like object using StringIO, data populated from array of string representing log file lines.
     """
 
-    def test_alert_triggered_with_sample_data(self):
-        """Positive - both thermostat and battery alerts are triggered when value crosses threshold"""
+    def test_both_thermostat_and_battery_alert_triggered_same_satellite(self):
+        """Positive - for same satellite both thermostat and battery alerts are triggered when value crosses threshold"""
         base_time = datetime(2018, 1, 1, 23, 1, 5, 1_000)
 
         lines = [
@@ -46,6 +46,44 @@ class TestProcessingLogFileLines:
         assert sum(alert["component"] == "BATT" for alert in alerts) == 1
         batt_alert = next(alert for alert in alerts if alert["component"] == "BATT")
         assert batt_alert["satelliteId"] == 1000
+        assert batt_alert["severity"] == "RED LOW"
+        assert batt_alert["component"] == "BATT"
+        assert batt_alert["timestamp"] == "2018-01-01T23:01:09.521000Z"
+
+    def test_both_thermostat_and_battery_alert_triggered_different_satellite(self):
+        """Positive - for different satellite both thermostat and battery alerts are triggered when value crosses threshold"""
+        base_time = datetime(2018, 1, 1, 23, 1, 5, 1_000)
+
+        lines = [
+            make_log_line(base_time, 1001, 101, 98, 25, 20, 99.9, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=4.52), 1001, 17, 15, 9, 8, 7.8, "BATT"),
+            make_log_line(base_time + timedelta(seconds=21.01), 1001, 101, 98, 25, 20, 99.8, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=33.0), 1000, 101, 98, 25, 20, 102.9, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=44.02), 1000, 101, 98, 25, 20, 87.9, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=64.01), 1001, 101, 98, 25, 20, 89.3, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=65.02), 1001, 101, 98, 25, 20, 89.4, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=66.3), 1001, 17, 15, 9, 8, 7.7, "BATT"),
+            make_log_line(base_time + timedelta(seconds=118.0), 1000, 101, 98, 25, 20, 102.7, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=120.0), 1000, 101, 98, 25, 20, 101.2, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=181.01), 1001, 101, 98, 25, 20, 89.9, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=186.53), 1001, 17, 15, 9, 8, 7.9, "BATT"),
+            make_log_line(base_time + timedelta(seconds=240.02), 1001, 101, 98, 25, 20, 89.9, "TSTAT"),
+            make_log_line(base_time + timedelta(seconds=242.42), 1001, 17, 15, 9, 8, 7.9, "BATT"),
+        ]
+
+        alerts: List[dict] = _process_log_lines(StringIO("\n".join(lines)))
+
+        assert len(alerts) == 2
+        assert sum(alert["component"] == "TSTAT" for alert in alerts) == 1
+        tstat_alert = next(alert for alert in alerts if alert["component"] == "TSTAT")
+        assert tstat_alert["satelliteId"] == 1000
+        assert tstat_alert["severity"] == "RED HIGH"
+        assert tstat_alert["component"] == "TSTAT"
+        assert tstat_alert["timestamp"] == "2018-01-01T23:01:38.001000Z"
+
+        assert sum(alert["component"] == "BATT" for alert in alerts) == 1
+        batt_alert = next(alert for alert in alerts if alert["component"] == "BATT")
+        assert batt_alert["satelliteId"] == 1001
         assert batt_alert["severity"] == "RED LOW"
         assert batt_alert["component"] == "BATT"
         assert batt_alert["timestamp"] == "2018-01-01T23:01:09.521000Z"
