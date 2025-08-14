@@ -13,21 +13,20 @@ class LogEntry:
     alert thresholds, and timestamp.
 
     Attributes:
-        ts: Timestamp of the log entry.
-        sat_id: Satellite identifier.
-        rhl: Red high limit threshold.
-        yhl: Yellow high limit threshold.
-        yll: Yellow low limit threshold.
-        rll: Red low limit threshold.
-        val: Raw sensor measurement value.
-        cmpnt: Component name.
+        timestamp: Timestamp of the log entry.
+        satellite_id: Satellite identifier.
+        red_high_limit: Red high limit threshold.
+        yellow_high_limit: Yellow high limit threshold.
+        yellow_low_limit: Yellow low limit threshold.
+        red_low_limit: Red low limit threshold.
+        raw_value: Raw sensor measurement value.
+        component: Component identifier.
     """
-
-    ts: datetime
-    sat_id: int
-    rhl: int
-    yhl: int
-    yll: int
-    rll: int
-    val: float
-    cmpnt: str
+    timestamp: datetime
+    satellite_id: int
+    red_high_limit: int
+    yellow_high_limit: int
+    yellow_low_limit: int
+    red_low_limit: int
+    raw_value: float
+    component: str

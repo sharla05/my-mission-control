@@ -20,11 +20,11 @@ def evaluate_alert_condition(log_entry: LogEntry) -> Optional[str]:
     assert log_entry is not None, "log_entry must not be None"
 
     # Battery alert: Only consider battery voltage readings that are under the red-low-limit
-    if log_entry.cmpnt == COMPONENT_BATT and log_entry.val < log_entry.rll:
+    if log_entry.component == COMPONENT_BATT and log_entry.raw_value < log_entry.red_low_limit:
         return SEVERITY_RED_LOW
 
     # Temperature alert: Only consider thermostat readings that exceed the red-high-limit
-    if log_entry.cmpnt == COMPONENT_TSTAT and log_entry.val > log_entry.rhl:
+    if log_entry.component == COMPONENT_TSTAT and log_entry.raw_value > log_entry.red_high_limit:
         return SEVERITY_RED_HIGH
 
     return None

@@ -32,7 +32,7 @@ class RedLowAlertStrategy(AlertEvalStrategy):
         """
         Returns 'RED LOW' if condition is met
         """
-        if log_entry.val < log_entry.rll:
+        if log_entry.raw_value < log_entry.red_low_limit:
             return SEVERITY_RED_LOW
         return None
 
@@ -46,6 +46,6 @@ class RedHighAlertStrategy(AlertEvalStrategy):
         """
         Returns 'RED HIGH' if condition is met
         """
-        if log_entry.val > log_entry.rhl:
+        if log_entry.raw_value > log_entry.red_high_limit:
             return SEVERITY_RED_HIGH
         return None

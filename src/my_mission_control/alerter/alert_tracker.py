@@ -64,9 +64,9 @@ class AlertTracker:
             Returns:
                 Optional[str]: Severity level if an alert condition is met; othersise, None.
             """
-            eval_strategy = self.alert_eval_strategy_map[log_entry.cmpnt]
+            eval_strategy = self.alert_eval_strategy_map[log_entry.component]
             if not eval_strategy:
-                logger.warning(f"No alert evaluation strategy found for {log_entry.cmpnt}")
+                logger.warning(f"No alert evaluation strategy found for {log_entry.component}")
                 return None
             return eval_strategy.evaluate(log_entry)
 
@@ -76,23 +76,23 @@ class AlertTracker:
             return None
 
         # Add timestamp to the appropriate statellite-component pair timestamp deque
-        timestamps_dq = self.alert_timestamps[log_entry.sat_id][log_entry.cmpnt]
-        timestamps_dq.append(log_entry.ts)
+        timestamps_dq = self.alert_timestamps[log_entry.satellite_id][log_entry.component]
+        timestamps_dq.append(log_entry.timestamp)
 
         # Remove entries older than the violation check time delta window
-        while timestamps_dq and (log_entry.ts - timestamps_dq[0]) > TIME_DELTA:
+        while timestamps_dq and (log_entry.timestamp - timestamps_dq[0]) > TIME_DELTA:
             timestamps_dq.popleft()
 
         # Check number of entries exceed the violation threshold
         if len(timestamps_dq) >= VIOLATION_THRESHOLD:
             first_ts = timestamps_dq[0]
-            last_alert_ts = self.last_alert_timestamp[log_entry.sat_id][log_entry.cmpnt]
+            last_alert_ts = self.last_alert_timestamp[log_entry.satellite_id][log_entry.component]
 
             if last_alert_ts is None or first_ts > last_alert_ts:
                 # Generate Alert
-                alert = Alert(log_entry.sat_id, severity, log_entry.cmpnt, first_ts)
+                alert = Alert(log_entry.satellite_id, severity, log_entry.component, first_ts)
 
                 # Save timestamp that generated Alert, used as starting point to determine next alert
-                self.last_alert_timestamp[log_entry.sat_id][log_entry.cmpnt] = log_entry.ts
+                self.last_alert_timestamp[log_entry.satellite_id][log_entry.component] = log_entry.timestamp
                 return alert
         return None

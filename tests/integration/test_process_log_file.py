@@ -21,12 +21,12 @@ def test_process_log_file_alert_tiggered():
 20180101 23:05:05.021|1001|101|98|25|20|89.9|TSTAT
 20180101 23:05:07.421|1001|17|15|9|8|7.9|BATT
 """
-    # 	log_data = """\
-    # 20180101 23:01:09.521|1000|17|15|9|8|7.8|BATT
-    # 20180101 23:02:11.302|1000|17|15|9|8|7.7|BATT
-    # 20180101 23:04:11.531|1000|17|15|9|8|7.9|BATT
-    # 20180101 23:05:07.421|1001|17|15|9|8|7.9|BATT
-    # """
+# 	log_data = """\
+# 20180101 23:01:09.521|1000|17|15|9|8|7.8|BATT
+# 20180101 23:02:11.302|1000|17|15|9|8|7.7|BATT
+# 20180101 23:04:11.531|1000|17|15|9|8|7.9|BATT
+# 20180101 23:05:07.421|1001|17|15|9|8|7.9|BATT
+# """
 
     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp:
         tmp.write(log_data)
@@ -35,7 +35,6 @@ def test_process_log_file_alert_tiggered():
 
     try:
         alerts = process_log_file(path)
-        print("test alerts = ", alerts)
         assert len(alerts) == 2  # nosec
     finally:
         os.remove(path)  # cleanup

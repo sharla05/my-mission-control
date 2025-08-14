@@ -24,12 +24,12 @@ def is_alert_condition(log_entry: LogEntry) -> bool:
     assert log_entry is not None, "log_entry must not be None"
 
     # Battery alert: Only consider battery voltage readings that are under the red-low-limit
-    if log_entry.cmpnt == COMPONENT_BATT:
-        return log_entry.val < log_entry.rll
+    if log_entry.component == COMPONENT_BATT:
+        return log_entry.raw_value < log_entry.red_low_limit
 
     # Temperature alert: Only consider thermostat readings that exceed the red-high-limit
-    if log_entry.cmpnt == COMPONENT_TSTAT:
-        return log_entry.val > log_entry.rhl
+    if log_entry.component == COMPONENT_TSTAT:
+        return log_entry.raw_value > log_entry.red_high_limit
 
     return False
 
@@ -57,11 +57,11 @@ def process_log_file(log_file: str) -> List[dict]:
                 continue
 
             # Add timestamp to the appropriate statellite-component pair deque
-            sat_cmpnt_violations_dq = violation_tss_by_sat_cmpnt[log_entry.sat_id][log_entry.cmpnt]
-            sat_cmpnt_violations_dq.append(log_entry.ts)
+            sat_cmpnt_violations_dq = violation_tss_by_sat_cmpnt[log_entry.satellite_id][log_entry.component]
+            sat_cmpnt_violations_dq.append(log_entry.timestamp)
 
             # Remove entries older than the violation check time delta window
-            while sat_cmpnt_violations_dq and (log_entry.ts - sat_cmpnt_violations_dq[0]) > TIME_DELTA:
+            while sat_cmpnt_violations_dq and (log_entry.timestamp - sat_cmpnt_violations_dq[0]) > TIME_DELTA:
                 sat_cmpnt_violations_dq.popleft()
 
             # print(f"sat_cmpnt_violations_dq: [{sat_id}][{cmpnt}]", sat_cmpnt_violations_dq)
@@ -69,15 +69,15 @@ def process_log_file(log_file: str) -> List[dict]:
             # Check number of entries exceed the violation threshold
             if len(sat_cmpnt_violations_dq) >= VIOLATION_THRESHOLD:
                 first_ts = sat_cmpnt_violations_dq[0]
-                last_alert_ts = last_alert_ts_by_sat_cmpnt[log_entry.sat_id][log_entry.cmpnt]
+                last_alert_ts = last_alert_ts_by_sat_cmpnt[log_entry.satellite_id][log_entry.component]
 
                 if last_alert_ts is None or first_ts > last_alert_ts:
-                    severity = SEVERITY_RED_HIGH if log_entry.cmpnt == COMPONENT_TSTAT else SEVERITY_RED_LOW
-                    alert = Alert(log_entry.sat_id, severity, log_entry.cmpnt, first_ts)
+                    severity = SEVERITY_RED_HIGH if log_entry.component == COMPONENT_TSTAT else SEVERITY_RED_LOW
+                    alert = Alert(log_entry.satellite_id, severity, log_entry.component, first_ts)
                     alerts.append(alert.to_dict())
 
                     # last_alert_time[log_entry.sat_id][log_entry.cmpnt] = first_ts # should be 'ts', that is, last timestamp of violation entry
-                    last_alert_ts_by_sat_cmpnt[log_entry.sat_id][log_entry.cmpnt] = log_entry.ts  # should be 'ts', that is, last timestamp of violation entry
+                    last_alert_ts_by_sat_cmpnt[log_entry.satellite_id][log_entry.component] = log_entry.timestamp  # should be 'ts', that is, last timestamp of violation entry
 
     # logger.info(json.dumps(alerts))
     return alerts
