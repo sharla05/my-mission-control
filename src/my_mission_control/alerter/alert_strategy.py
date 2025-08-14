@@ -4,13 +4,14 @@ Alert evaluation strategies for log entries.
 Implements the Strategy Pattern to support flexible and extensible alert evaluation logic.
 """
 
+import os
 from abc import ABC
 from typing import Optional
 
 from my_mission_control.entity.log_entry import LogEntry
 
-SEVERITY_RED_HIGH = "RED HIGH"
-SEVERITY_RED_LOW = "RED LOW"
+SEVERITY_RED_HIGH = os.getenv("SEVERITY_RED_HIGH", "RED HIGH")
+SEVERITY_RED_LOW = os.getenv("SEVERITY_RED_LOW", "RED LOW")
 
 
 class AlertEvalStrategy(ABC):

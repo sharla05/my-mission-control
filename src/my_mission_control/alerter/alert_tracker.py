@@ -5,6 +5,7 @@ Uses component-specific strategies to determine if a log entry triggers an alert
 Alerts are generated when violations exceed a defined threshold within a time window.
 """
 
+import os
 from collections import defaultdict, deque
 from datetime import datetime, timedelta
 from typing import Deque, Dict, Optional
@@ -14,12 +15,13 @@ from structlog.stdlib import get_logger
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy
 from my_mission_control.entity.alert import Alert
 from my_mission_control.entity.log_entry import LogEntry
+from my_mission_control.utils.utility import get_env_var_int
 
 logger = get_logger(__name__)
 
-VIOLATION_THRESHOLD = 3
-TIME_WINDOW_MINUTES = 5
-TIME_DELTA = timedelta(minutes=TIME_WINDOW_MINUTES)
+VIOLATION_THRESHOLD: int = get_env_var_int("VIOLATION_THRESHOLD", 3)
+TIME_WINDOW_MINUTES: int = get_env_var_int("TIME_WINDOW_MINUTES", 5)
+TIME_DELTA: timedelta = timedelta(minutes=TIME_WINDOW_MINUTES)
 
 
 class AlertTracker:

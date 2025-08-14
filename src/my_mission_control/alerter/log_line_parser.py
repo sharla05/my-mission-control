@@ -4,6 +4,7 @@ Parses telemetry log file lines into structured LogEntry objects.
 
 from dataclasses import dataclass
 from datetime import datetime
+import os
 from typing import Optional
 
 from structlog.stdlib import get_logger
@@ -11,9 +12,9 @@ from structlog.stdlib import get_logger
 from my_mission_control.entity.log_entry import LogEntry
 
 TIME_FORMAT_INPUT = "%Y%m%d %H:%M:%S.%f"
-DELIMITER = "|"
+DELIMITER = os.getenv("DELIMITER", "|")
 INPUT_FORMAT = "<timestamp>|<satellite-id>|<red-high-limit>|<yellow-high-limit>|<yellow-low-limit>|<red-low-limit>|<raw-value>|<component>"
-EXPECTED_FIELD_COUNT = len(INPUT_FORMAT.split(DELIMITER))
+EXPECTED_FIELD_COUNT = len(INPUT_FORMAT.split("|"))
 
 
 logger = get_logger(__name__)
