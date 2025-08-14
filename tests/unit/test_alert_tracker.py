@@ -1,86 +1,62 @@
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
-from unittest.mock import patch
+from typing import Dict, Optional
 
-from my_mission_control.alerter.alert_rules import COMPONENT_BATT, COMPONENT_TSTAT
+import pytest
+
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy, RedHighAlertStrategy, RedLowAlertStrategy
 from my_mission_control.alerter.alert_tracker import AlertTracker
-from my_mission_control.alerter.log_file_processor_v2 import _process_log_line
-from my_mission_control.entity.alert import Alert
-from tests.utils.log_helper import make_log_line
+from my_mission_control.config.settings import AlertOutputCfg, InputLogFileCfg
+from my_mission_control.entity.log_entry import LogEntry
 
 
-# @patch("my_mission_control.alerter.alert_tracker.evaluate_alert_condition", return_value="RED LOW")
-# def test_alert_triggered_for_batt(mock_eval):
-def test_alert_triggered_for_batt():
-    alert_eval_strategy_map: Dict[str, AlertEvalStrategy] = {COMPONENT_BATT: RedLowAlertStrategy(), COMPONENT_TSTAT: RedHighAlertStrategy()}
-    alert_tracker = AlertTracker(alert_eval_strategy_map)
-    base_time = datetime(2025, 8, 7, 19, 0, 0)
-
-    lines = [
-        make_log_line(base_time, 1002, 90, 10, 5, 10, 9.0, "BATT"),
-        make_log_line(base_time + timedelta(minutes=1), 1002, 90, 10, 5, 10, 9.8, "BATT"),
-        make_log_line(base_time + timedelta(minutes=2), 1002, 90, 10, 5, 10, 9.7, "BATT"),
-    ]
-
-    alerts: List[dict] = []
-    # Process each log line individually and collect any generated alerts
-    for line in lines:
-        alert: Optional[Alert] = _process_log_line(line, alert_tracker)
-        if alert:
-            alerts.append(alert.to_dict())
-
-    # Assertions
-    assert len(alerts) == 1, "Expected exactly one alert to be triggered"
+# Use a mock AlertEvalStrategy to control when a violation occurs.
+class MockAlertEvalStrategy(AlertEvalStrategy):
+    def evaluate(self, log_entry: LogEntry) -> Optional[str]:
+        # For our tests, we'll assume a violation occurs when the raw value is 100
+        if log_entry.raw_value == 100:
+            return "RED"
+        return None
 
 
-# from datetime import datetime, timedelta
-# from unittest.mock import patch
+class TestAlertStrategies:
+    @pytest.fixture
+    def base_time(self):
+        return datetime(2018, 1, 1, 23, 1, 5)
 
-# from my_mission_control.alerter.alert_tracker import AlertTracker
+    @pytest.fixture
+    def red_high_limit(self):
+        return 101
 
+    @pytest.fixture
+    def red_low_limit(self):
+        return 8
 
-# from alert.parser.parser import format_ts, make_log_line  # Or redefine locally if needed
+    def make_log_entry_thermostat(self, ts: datetime, raw_value: float, rhl, rll) -> LogEntry:
+        return LogEntry(ts, 1000, rhl, 0, 0, rll, float(raw_value), InputLogFileCfg.LOG_LINE_COMPONENT_TSTAT)
 
-# @patch("my_mission_control.alerter.alert_tracker.evaluate_alert_condition")
-# def test_alert_tracker_with_sample_data(mock_eval):
-#     # Mock severity based on component
-#     def mock_severity(log_entry):
-#         return "RED HIGH" if log_entry.cmpnt == "TSTAT" else "RED LOW"
-#     mock_eval.side_effect = mock_severity
+    def make_log_entry_battery(self, ts: datetime, raw_value: float, rhl, rll) -> LogEntry:
+        return LogEntry(ts, 1000, rhl, 0, 0, rll, float(raw_value), InputLogFileCfg.LOG_LINE_COMPONENT_BATT)
 
-#     tracker = AlertTracker()
-#     base_time = datetime(2018, 1, 1, 23, 1, 5)
+    def test_alert_triggered_with_default_alert_strategy(self, base_time, red_high_limit, red_low_limit):
+        alert_eval_strategy_map: Dict[str, AlertEvalStrategy] = {InputLogFileCfg.LOG_LINE_COMPONENT_BATT: RedLowAlertStrategy(), InputLogFileCfg.LOG_LINE_COMPONENT_TSTAT: RedHighAlertStrategy()}
+        alert_tracker = AlertTracker(alert_eval_strategy_map)
 
-#     lines = [
-#         make_log_line(base_time, 1001, 101, 98, 25, 20, 99.9, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=4.52), 1000, 17, 15, 9, 8, 7.8, "BATT"),
-#         make_log_line(base_time + timedelta(seconds=21.01), 1001, 101, 98, 25, 20, 99.8, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=33.0), 1000, 101, 98, 25, 20, 102.9, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=44.02), 1000, 101, 98, 25, 20, 87.9, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=64.01), 1001, 101, 98, 25, 20, 89.3, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=65.02), 1001, 101, 98, 25, 20, 89.4, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=66.3), 1000, 17, 15, 9, 8, 7.7, "BATT"),
-#         make_log_line(base_time + timedelta(seconds=118.0), 1000, 101, 98, 25, 20, 102.7, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=120.0), 1000, 101, 98, 25, 20, 101.2, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=181.01), 1001, 101, 98, 25, 20, 89.9, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=186.53), 1000, 17, 15, 9, 8, 7.9, "BATT"),
-#         make_log_line(base_time + timedelta(seconds=240.02), 1001, 101, 98, 25, 20, 89.9, "TSTAT"),
-#         make_log_line(base_time + timedelta(seconds=242.42), 1001, 17, 15, 9, 8, 7.9, "BATT"),
-#     ]
+        log_entries = [
+            self.make_log_entry_thermostat(base_time + timedelta(seconds=10), red_high_limit + 0.1, red_high_limit, red_low_limit),
+            self.make_log_entry_thermostat(base_time + timedelta(seconds=30), red_high_limit + 0.1, red_high_limit, red_low_limit),
+            self.make_log_entry_thermostat(base_time + timedelta(seconds=60), red_high_limit + 0.1, red_high_limit, red_low_limit),
+        ]
 
-#     log_entries = parse_log_lines_to_json(lines)
-
-#     alerts = []
-#     for entry in log_entries:
-#         alert = tracker.process_log_entry(entry)
-#         if alert:
-#             alerts.append(alert)
-
-#     # Print alerts for inspection
-#     for alert in alerts:
-#         print(f"ALERT: sat_id={alert.sat_id}, cmpnt={alert.cmpnt}, severity={alert.severity}, ts={alert.ts}")
-
-#     # Basic assertions
-#     assert len(alerts) > 0
-#     assert all(isinstance(alert, Alert) for alert in alerts)
+        # First violation
+        alert = alert_tracker.process_log_entry(log_entries[0])
+        assert alert is None
+        # Second violation
+        alert = alert_tracker.process_log_entry(log_entries[1])
+        assert alert is None
+        # Third violation
+        alert = alert_tracker.process_log_entry(log_entries[0])
+        assert alert is not None
+        alert.satellite_id = 1000
+        alert.severity = AlertOutputCfg.SEVERITY_RED_HIGH
+        alert.component = InputLogFileCfg.LOG_LINE_COMPONENT_TSTAT
+        alert.timestamp = base_time + timedelta(seconds=10)
