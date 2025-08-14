@@ -4,14 +4,11 @@ Alert evaluation strategies for log entries.
 Implements the Strategy Pattern to support flexible and extensible alert evaluation logic.
 """
 
-import os
 from abc import ABC
 from typing import Optional
 
+from my_mission_control.config.settings import SeverityLevelCfg
 from my_mission_control.entity.log_entry import LogEntry
-
-SEVERITY_RED_HIGH = os.getenv("SEVERITY_RED_HIGH", "RED HIGH")
-SEVERITY_RED_LOW = os.getenv("SEVERITY_RED_LOW", "RED LOW")
 
 
 class AlertEvalStrategy(ABC):
@@ -34,7 +31,7 @@ class RedLowAlertStrategy(AlertEvalStrategy):
         Returns 'RED LOW' if condition is met
         """
         if log_entry.raw_value < log_entry.red_low_limit:
-            return SEVERITY_RED_LOW
+            return SeverityLevelCfg.RED_LOW
         return None
 
 
@@ -48,5 +45,5 @@ class RedHighAlertStrategy(AlertEvalStrategy):
         Returns 'RED HIGH' if condition is met
         """
         if log_entry.raw_value > log_entry.red_high_limit:
-            return SEVERITY_RED_HIGH
+            return SeverityLevelCfg.RED_HIGH
         return None

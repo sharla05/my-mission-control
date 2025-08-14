@@ -9,10 +9,8 @@ from typing import Any, Dict
 
 from structlog.stdlib import get_logger
 
+from my_mission_control.config.settings import AlertCfg
 from my_mission_control.utils.utility import snake_to_camel
-
-TIME_FORMAT_OUTPUT = "%Y-%m-%dT%H:%M:%S.%fZ"
-
 
 logger = get_logger(__name__)
 
@@ -33,7 +31,7 @@ class Alert:
         Convert alert as per reporting requirements
         """
         raw_dict = asdict(self)
-        raw_dict["timestamp"] = self.timestamp.strftime(TIME_FORMAT_OUTPUT)
+        raw_dict["timestamp"] = self.timestamp.strftime(AlertCfg.ALERT_TIME_FORMAT_OUTPUT)
 
         camel_dict = {snake_to_camel(k): v for k, v in raw_dict.items()}
         return camel_dict

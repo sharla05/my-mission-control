@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy
-from my_mission_control.alerter.alert_tracker import TIME_DELTA, VIOLATION_THRESHOLD, AlertTracker
+from my_mission_control.alerter.alert_tracker import ALERT_VIOLATION_COUNT_THRESHOLD, TIME_DELTA, AlertTracker
 from my_mission_control.entity.log_entry import LogEntry
 
 
@@ -58,7 +58,7 @@ class TestAlertTracker:
 
         # Process violations one by one, staying within the time window
         alerts = []
-        for i in range(VIOLATION_THRESHOLD):
+        for i in range(ALERT_VIOLATION_COUNT_THRESHOLD):
             timestamp = base_time + timedelta(seconds=i * 10)
             entry = self.make_log_entry(timestamp, 100)
             alert = tracker.process_log_entry(entry)
@@ -67,12 +67,12 @@ class TestAlertTracker:
 
         # The third violation should trigger an alert
         assert len(alerts) == 1
-        assert alerts[0].violation_count == VIOLATION_THRESHOLD
+        assert alerts[0].violation_count == ALERT_VIOLATION_COUNT_THRESHOLD
         assert alerts[0].component == "TEST_CMPNT"
         assert alerts[0].timestamp == base_time
 
         # After the alert, the timestamps deque should contain all three entries
-        assert len(tracker.alert_timestamps[1]["TEST_CMPNT"]) == VIOLATION_THRESHOLD
+        assert len(tracker.alert_timestamps[1]["TEST_CMPNT"]) == ALERT_VIOLATION_COUNT_THRESHOLD
 
     def test_violations_expire_from_time_window(self, tracker):
         """
@@ -122,7 +122,7 @@ class TestAlertTracker:
         base_time = datetime(2023, 1, 1, 12, 0, 0)
 
         # Trigger the first alert with VIOLATION_THRESHOLD entries
-        for i in range(VIOLATION_THRESHOLD):
+        for i in range(ALERT_VIOLATION_COUNT_THRESHOLD):
             timestamp = base_time + timedelta(seconds=i * 10)
             entry = self.make_log_entry(timestamp, 100)
             tracker.process_log_entry(entry)

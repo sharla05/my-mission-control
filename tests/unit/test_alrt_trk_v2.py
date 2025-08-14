@@ -4,7 +4,7 @@ from typing import Dict, Optional
 import pytest
 
 from my_mission_control.alerter.alert_strategy import AlertEvalStrategy
-from my_mission_control.alerter.alert_tracker import TIME_DELTA, VIOLATION_THRESHOLD, AlertTracker
+from my_mission_control.alerter.alert_tracker import ALERT_VIOLATION_COUNT_THRESHOLD, TIME_DELTA, AlertTracker
 from my_mission_control.entity.log_entry import LogEntry
 
 
@@ -49,7 +49,7 @@ class TestAlertTracker:
         base_time = datetime(2023, 1, 1, 12, 0, 0)
 
         # Process violations up to one less than the threshold
-        for i in range(VIOLATION_THRESHOLD - 1):
+        for i in range(ALERT_VIOLATION_COUNT_THRESHOLD - 1):
             timestamp = base_time + timedelta(seconds=i)
             entry = self.make_log_entry(timestamp, 100)
             alert = tracker.process_log_entry(entry)
@@ -64,14 +64,14 @@ class TestAlertTracker:
 
         # Process violations one by one
         alert = None
-        for i in range(VIOLATION_THRESHOLD):
+        for i in range(ALERT_VIOLATION_COUNT_THRESHOLD):
             timestamp = base_time + timedelta(seconds=i * 10)
             entry = self.make_log_entry(timestamp, 100)
             alert = tracker.process_log_entry(entry)
 
         # The last violation should trigger the alert
         assert alert is not None, "An alert was not triggered when the threshold was met."
-        assert alert.violation_count == VIOLATION_THRESHOLD
+        assert alert.violation_count == ALERT_VIOLATION_COUNT_THRESHOLD
         assert alert.component == "TEST_CMPNT"
         assert alert.sat_id == 1
         assert alert.timestamp == base_time
@@ -107,7 +107,7 @@ class TestAlertTracker:
         base_time = datetime(2023, 1, 1, 12, 0, 0)
 
         # Trigger the first alert with VIOLATION_THRESHOLD entries
-        for i in range(VIOLATION_THRESHOLD):
+        for i in range(ALERT_VIOLATION_COUNT_THRESHOLD):
             timestamp = base_time + timedelta(seconds=i * 10)
             entry = self.make_log_entry(timestamp, 100)
             tracker.process_log_entry(entry)
@@ -128,7 +128,7 @@ class TestAlertTracker:
         base_time = datetime(2023, 1, 1, 12, 0, 0)
 
         # Trigger the first alert
-        for i in range(VIOLATION_THRESHOLD):
+        for i in range(ALERT_VIOLATION_COUNT_THRESHOLD):
             timestamp = base_time + timedelta(seconds=i * 10)
             entry = self.make_log_entry(timestamp, 100)
             tracker.process_log_entry(entry)
@@ -138,11 +138,11 @@ class TestAlertTracker:
 
         # Trigger a second alert with a new set of violations
         alert = None
-        for i in range(VIOLATION_THRESHOLD):
+        for i in range(ALERT_VIOLATION_COUNT_THRESHOLD):
             timestamp = new_base_time + timedelta(seconds=i * 10)
             entry = self.make_log_entry(timestamp, 100)
             alert = tracker.process_log_entry(entry)
 
         assert alert is not None, "A new alert was not triggered after the time window elapsed."
-        assert alert.violation_count == VIOLATION_THRESHOLD
+        assert alert.violation_count == ALERT_VIOLATION_COUNT_THRESHOLD
         assert alert.timestamp == new_base_time
