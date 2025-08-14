@@ -8,18 +8,6 @@ from my_mission_control.alerter.alert_tracker import AlertTracker
 from my_mission_control.config.settings import AlertOutputCfg, InputLogFileCfg
 from my_mission_control.entity.log_entry import LogEntry
 
-MOCK_TRIGGER_VALUE: int = 999
-MOCK_SEVERITY = "MOCK SEVERITY"
-
-
-# Use a mock AlertEvalStrategy to control when a violation occurs.
-class MockAlertEvalStrategy(AlertEvalStrategy):
-    def evaluate(self, log_entry: LogEntry) -> Optional[str]:
-        # For our tests, we'll assume a violation occurs when the raw value is 100
-        if log_entry.raw_value == MOCK_TRIGGER_VALUE:
-            return MOCK_SEVERITY
-        return None
-
 
 class TestAlertStrategies:
     @pytest.fixture
@@ -67,6 +55,17 @@ class TestAlertStrategies:
     # Test replacing Evaluation Strategy in AlertTracker
     def test_alert_triggered_with_mock_alert_strategy(self, base_time, red_high_limit, red_low_limit):
         """Use Mock Strategy for threshold check"""
+        MOCK_TRIGGER_VALUE: int = 999
+        MOCK_SEVERITY = "MOCK SEVERITY"
+
+        # Use a mock AlertEvalStrategy to control when a violation occurs.
+        class MockAlertEvalStrategy(AlertEvalStrategy):
+            def evaluate(self, log_entry: LogEntry) -> Optional[str]:
+                # For our tests, we'll assume a violation occurs when the raw value is 100
+                if log_entry.raw_value == MOCK_TRIGGER_VALUE:
+                    return MOCK_SEVERITY
+                return None
+
         alert_eval_strategy_map: Dict[str, AlertEvalStrategy] = {InputLogFileCfg.LOG_LINE_COMPONENT_BATT: MockAlertEvalStrategy(), InputLogFileCfg.LOG_LINE_COMPONENT_TSTAT: MockAlertEvalStrategy()}
         alert_tracker = AlertTracker(alert_eval_strategy_map)
 
