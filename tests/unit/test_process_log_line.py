@@ -48,7 +48,7 @@ class TestLogLineProcessing:
         assert len(alerts) == 2, "Expected exactly one alert to be triggered"
 
     def test_battery_alert_triggered(self):
-        """Positive - battery"""
+        """Positive - battery is triggered when more than 3 values cross the threshold within 5 minutes window"""
         base_time = datetime(2025, 8, 13, 10, 0, 0)
 
         # 3 battery readings for satellite 1001 below red_low_limit (8) within 5 minutes
@@ -70,7 +70,7 @@ class TestLogLineProcessing:
         assert alerts[0]["satelliteId"] == 1001, "Alert should be for satellite 1001"
 
     def test_thermostat_alert_triggered(self):
-        """Positive - temperature"""
+        """Positive - thermostat"""
         base_time = datetime(2025, 8, 13, 11, 0, 0)
 
         # 3 thermostat readings for satellite 1002 exceeding red_high_limit (101) within 5 minutes

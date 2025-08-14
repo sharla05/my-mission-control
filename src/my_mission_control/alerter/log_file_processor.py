@@ -27,7 +27,7 @@ def is_alert_condition(log_entry: LogEntry) -> bool:
     if log_entry.component == COMPONENT_BATT:
         return log_entry.raw_value < log_entry.red_low_limit
 
-    # Temperature alert: Only consider thermostat readings that exceed the red-high-limit
+    # Thermostat alert: Only consider thermostat readings that exceed the red-high-limit
     if log_entry.component == COMPONENT_TSTAT:
         return log_entry.raw_value > log_entry.red_high_limit
 

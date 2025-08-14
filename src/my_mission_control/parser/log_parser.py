@@ -67,13 +67,13 @@ def process_log_file(log_file: str) -> List[dict]:
             ts, sat_id, rhl, yhl, yll, rll, val, cmpnt = parsed_line
 
             if cmpnt not in (COMPONENT_TSTAT, COMPONENT_BATT):
-                continue  # Ignore log entries not related to battery or temperature
+                continue  # Ignore log entries not related to battery or thermostat
 
             # Battery alert: Only consider battery voltage readings that are under the red-low-limit
             if cmpnt == COMPONENT_BATT and val >= rll:
                 continue
 
-            # Temperature alert: Only consider thermostat readings that exceed the red-high-limit
+            # Thermostat alert: Only consider thermostat readings that exceed the red-high-limit
             if cmpnt == COMPONENT_TSTAT and val <= rhl:
                 continue
 

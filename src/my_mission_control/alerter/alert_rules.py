@@ -23,7 +23,7 @@ def evaluate_alert_condition(log_entry: LogEntry) -> Optional[str]:
     if log_entry.component == COMPONENT_BATT and log_entry.raw_value < log_entry.red_low_limit:
         return SEVERITY_RED_LOW
 
-    # Temperature alert: Only consider thermostat readings that exceed the red-high-limit
+    # Thermostat alert: Only consider thermostat readings that exceed the red-high-limit
     if log_entry.component == COMPONENT_TSTAT and log_entry.raw_value > log_entry.red_high_limit:
         return SEVERITY_RED_HIGH
 
